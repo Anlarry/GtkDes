@@ -50,19 +50,29 @@ void Decrypt::crypt_process() {
     string t = "";
     for(int i = 0; i < num16.size(); ) {
         char c = 0;
+        char cc = 0;
         try{
             c = char2int(num16[i++]);
             c <<= 4;
             c += char2int(num16[i++]);
+            for(int i = 0; i < 8; i++) {
+                cc = (cc << 1) | (c & 1);
+                c >>= 1;
+            }
         }
         catch(const std::exception& e)
         {
             std::cerr << e.what() << '\n';
         }
-        t += c;
+        t += cc;
     }
     string res = Des::process(t, k, -1);
-    text.set_text(res);
+    string show = "";
+    for(auto s : res) {
+        if(s > 0) show += s;
+        else break;
+    }
+    text.set_text(show);
 }
 
 void Decrypt::clear_buffer() {

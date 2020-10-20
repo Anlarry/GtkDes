@@ -91,9 +91,9 @@ int Des::P64[64] = {
     61, 53, 45, 37, 29, 21, 13, 5,
     63, 55, 47, 39, 31, 23, 15, 7,
     56, 48, 40, 32, 24, 16, 8,  0, 
-    48, 50, 42, 34, 26, 18, 10, 2,
+    58, 50, 42, 34, 26, 18, 10, 2,
     60, 52, 44, 36, 28, 20, 12, 4, 
-    62, 52, 46, 40, 30, 22, 16, 6
+    62, 54, 46, 38, 30, 22, 14, 6
 }; 
 int Des::P64_inv[64];
 
@@ -126,7 +126,7 @@ string Des::process(string text, string key, int type) {
 
     // ---------------------------
     // Debug 
-    #ifdef DEBUG
+    #ifdef DEBUG_CHECK
         long long x = 0x0123456789ABCDEF;
         long long y = 0x133457799BBCDFF1;
     #endif
@@ -141,7 +141,7 @@ string Des::process(string text, string key, int type) {
     }
 
     // ------------------
-    #ifdef DEBUG
+    #ifdef DEBUG_CHECK
         for(int i = 0; i < 64; i++) {
             k.set(63-i, y & 1);
             y >>= 1;
@@ -160,7 +160,7 @@ string Des::process(string text, string key, int type) {
             t.set_int8(k, (j < text.size() ? text[j] : 0));
         }
         // -----------------------
-        #ifdef DEBUG
+        #ifdef DEBUG_CHECK
             for(int k = 0; k < 64; k++) {
                 t.set(63-k, x & 1);
                 x >>= 1;
@@ -185,6 +185,11 @@ DesData Des::process(DesData t, const vector<KeyData48> &k) {
     for(int i = 0; i < 64; i++) {
         now.set(i, t[P64[i]]);
     }
+    #ifdef DEBUG
+        printf("Data:   ");
+        cout << t << "\n";
+        cout << "P_data: " << now << "\n";
+    #endif
     auto L0 = now.get_L();
     auto R0 = now.get_R();
     auto L1 = L0, R1 = R0;
@@ -207,11 +212,21 @@ DesData Des::process(DesData t, const vector<KeyData48> &k) {
         R0 = R1;
         
     }
+    #ifdef DEBUG
+        printf("L_%d: ", 16);
+        for(int i = 0; i < 32; i++) printf("%d", L0[i]);
+        printf("\nR_%d: ", 16);
+        for(int i = 0; i < 32; i++) printf("%d", R0[i]);
+        puts("");
+    #endif
     now.set_LR(R1, L1);
     DesData res;
     for(int i = 0; i < 64; i++) {
         res.set(i, now[P64_inv[i]]);
     }
+    #ifdef DEBUG
+        cout << "DesRes: " << res << "\n";
+    #endif
     return res;
 }
 
@@ -322,6 +337,16 @@ BitData<32> Des::f(BitData<32> data, const KeyData48 & k) {
             {2,1,14,7,4,10,8,13,15,12,9,0,3,5,6,11},
         }
     };
+    const int P[] = {
+        15, 6,  19, 20,
+        28, 11, 27, 16,
+        0,  14, 22, 25,
+        4,  17, 30, 9,
+        1,  7,  23, 13,
+        31, 26, 2,   8,
+        18, 12, 29,  5,
+        21, 10, 3,  24
+    };
     BitData<48> extData;
     // BitData<32> data;
     // for(int i = 0; i < 32; i++) {
@@ -331,7 +356,16 @@ BitData<32> Des::f(BitData<32> data, const KeyData48 & k) {
     for(int i = 0; i < 48; i++) {
         extData.set(i, data[E[i]]);
     }
+    #ifdef DEBUG
+        printf("extData: ");
+        for(int i = 0; i < 48; i++) printf("%d", extData[i]);
+        puts("");
+    #endif
     extData = extData ^ (BitData<48>)k;
+    #ifdef DEBUG
+        cout << "Key: " << k << '\n';
+        cout << "ext^key: " << extData << "\n";
+    #endif
     BitData<32> res;
     for(int i = 0, t = 0, k = 0; i < 48; t++) {
         int x = 0, y = 0;
@@ -341,12 +375,24 @@ BitData<32> Des::f(BitData<32> data, const KeyData48 & k) {
         }
         y = (y << 1) | extData[i++];
         for(int j = 0; j < 4; j++, k++) {
-            res.set(k+j, (S[t][y][x] >> j) & 1);
+            res.set(k, (S[t][y][x] >> (3-j)) & 1);
         }
     }
+    
+    BitData<32> Res;
+    for(int i = 0; i < 32; i++) {
+        Res.set(i, res[P[i]]);
+    }
+    #ifdef DEBUG
+        printf("f: ");
+        for(int i = 0; i < 32; i++) {
+            printf("%d", Res[i]);
+        }
+        puts("");
+    #endif
     // uint res_int = 0;
     // for(int i = 0; i < 32; i++) {
     //     res_int = (res_int << 1) | res[i];
     // }
-    return res;
+    return Res;
 }

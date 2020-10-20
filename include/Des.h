@@ -29,7 +29,7 @@ public:
             x[idx] &= ~(1 << r);
         }
     }
-    uchar operator [](int idx) {
+    uchar operator [](int idx) const {
         uchar r = idx& MASK;
         idx >>= 3;
         return (x[idx] >> r) & 1;
@@ -44,19 +44,27 @@ public:
     void set_int8(int idx, uchar val){
         x[idx] = val;
     }
-    uchar get_int8(int idx){
+    uchar get_int8(int idx)  {
         return x[idx];
     }
     string to_str(){
         string res = "";
-        char buffer[5] ;
-        for(int i = 0; i < bits / 8; i++) {
-            sprintf(buffer, "%x", x[i] & 0xf); 
-            sprintf(buffer+1, "%x", (x[i] >> 4) & 0xf);
-            res += buffer[1];
+        char buffer[5];
+        for(int i = 0; i < bits; ) {
+            char x = 0;
+            for(int j = 0; j < 4; j++) {
+                x = (x << 1) | (*this)[i++];
+            }
+            sprintf(buffer, "%x", x);
             res += buffer[0];
         }
         return res;
+    }
+    friend ostream & operator<< (ostream & out, const BitData<bits> & data) {
+        for(int i = 0; i < bits; i++) {
+            printf("%d", data[i]);
+        }
+        return out;
     }
 protected:
     uchar x[bits/8];
