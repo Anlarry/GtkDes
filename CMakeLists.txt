@@ -3,30 +3,19 @@ project(myproject)
 
 find_package(PkgConfig) 
 pkg_check_modules(GTKMM gtkmm-3.0)
-
-link_directories(
-    ${GTKMM_LIBRARY_DIRS}  )
-
 include_directories(
     ${GTKMM_INCLUDE_DIRS}  )
 
-include_directories(./include)
-
-file(GLOB SRC ./src/*.cpp)
-
-option(DEBUG OFF)
-
-if (DEBUG) 
-    add_definitions(-D DEBUG)
-    SET(CMAKE_BUILD_TYPE "Debug")
-    SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -Wall -g2 -ggdb")
-
-endif(DEBUG)
-
-add_executable(main 
-    main.cpp
-    ${SRC}
+include_directories(
+    ./Gtk/include 
+    ./Algorithm/include
 )
 
-target_link_libraries(main 
-    ${GTKMM_LIBRARIES}  )
+include_directories(Algorithm )
+include_directories(Gtk )
+
+add_subdirectory(Gtk)
+add_subdirectory(Algorithm)
+
+add_executable(main main.cpp)
+target_link_libraries(main Gtk Algorithm)
