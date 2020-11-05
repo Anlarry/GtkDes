@@ -1,17 +1,19 @@
 #include <GtkDecrypt.h>
 #include <Des.h>
+#include <Aes.h>
 using namespace std;
 using namespace Gtk;
 
 
 
-Decrypt::Decrypt(Orientation orientation, int spacing) 
-: 
+Decrypt::Decrypt(Config* config_ptr, Orientation orientation, int spacing) 
+:
     Gtk::Box(orientation, spacing),
     text("明文"),
     key("秘钥"),
     cipher_text("密文"),
-    buttons("解密")
+    buttons("解密"),
+    config_ptr(config_ptr)
 {
     pack_start(cipher_text);
     pack_start(key);
@@ -47,32 +49,48 @@ int Decrypt::char2int(char c) {
 void Decrypt::crypt_process() {
     string num16 = cipher_text.get_text();
     string k = key.get_text();
-    string t = "";
-    for(int i = 0; i < num16.size(); ) {
-        char c = 0;
-        char cc = 0;
-        try{
-            c = char2int(num16[i++]);
-            c <<= 4;
-            c += char2int(num16[i++]);
-            for(int i = 0; i < 8; i++) {
-                cc = (cc << 1) | (c & 1);
-                c >>= 1;
+    string alg = config_ptr->getString("algorithm");
+    if(alg == "DES") {
+        string t = "";
+        for(int i = 0; i < num16.size(); ) {
+            char c = 0;
+            char cc = 0;
+            try{
+                c = char2int(num16[i++]);
+                c <<= 4;
+                c += char2int(num16[i++]);
+                for(int i = 0; i < 8; i++) {
+                    cc = (cc << 1) | (c & 1);
+                    c >>= 1;
+                }
             }
+            catch(const std::exception& e)
+            {
+                std::cerr << e.what() << '\n';
+            }
+            t += cc;
         }
-        catch(const std::exception& e)
-        {
-            std::cerr << e.what() << '\n';
+        string res = Des::process(t, k, -1);
+        string show = "";
+        for(auto s : res) {
+            if(s > 0) show += s;
+            else break;
         }
-        t += cc;
+        text.set_text(show);
     }
-    string res = Des::process(t, k, -1);
-    string show = "";
-    for(auto s : res) {
-        if(s > 0) show += s;
-        else break;
+    else if(alg == "AES") {
+        Aes aes;
+        string res = aes.processInv(num16, k);
+        string show = "";
+        for(auto s : res) {
+            if(s > 0) show += s;
+            else break;
+        }
+        text.set_text(show);
     }
-    text.set_text(show);
+    else {
+        printf("\033[1;32mAlgorithm para error, %s\n\033[0m", alg.c_str());
+    }
 }
 
 void Decrypt::clear_buffer() {

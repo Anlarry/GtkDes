@@ -2,9 +2,11 @@
 #include <GtkWindow.h>
 using namespace std;
 
-MainWindow::MainWindow()
-    :vbox(Gtk::ORIENTATION_VERTICAL), page1(Gtk::ORIENTATION_VERTICAL), 
-                                      page2(Gtk::ORIENTATION_VERTICAL)
+MainWindow::MainWindow(string config_path)
+    :vbox(Gtk::ORIENTATION_VERTICAL), page1(&config_page,Gtk::ORIENTATION_VERTICAL), 
+                                      page2(&config_page, Gtk::ORIENTATION_VERTICAL),
+                                      config_page(config_path)
+                                      
 {
     set_title("DES");
     set_border_width(10);
@@ -17,6 +19,8 @@ MainWindow::MainWindow()
     
     notebook.append_page(page1, "加密");
     notebook.append_page(page2, "解密");
+    notebook.append_page(config_page, "Config");
+    // notebook.append_page()
 
     notebook.signal_switch_page().connect(sigc::mem_fun(*this,
         &MainWindow::on_notebook_switch_page));
