@@ -5,11 +5,14 @@
 #include <gtkmm-3.0/gtkmm/button.h>
 #include <GtkEncrypt.h>
 #include <GtkDecrypt.h>
+#include <Config.h>
+#include <string>
+using namespace std;
 
 class MainWindow : public Gtk::Window
 {   
 public :
-    MainWindow () ;
+    MainWindow (string config_path="config.json") ;
     virtual ~MainWindow();
 
 protected:
@@ -22,6 +25,8 @@ protected:
 
     Encrypt page1;
     Decrypt page2;
+    Config  config_page;
+
 };   
 
 #endif

@@ -4,10 +4,12 @@ file(GLOB SRC ./src/*.cpp)
 
 option(DEBUG off)
 
+
 if (DEBUG)
     add_definitions(-D DEBUG)
     SET(CMAKE_BUILD_TYPE "Debug")
-    SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -Wall -g2 -ggdb")
+    SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS}  -Wall -g2 -ggdb -pthread")
+    # SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS}  -Wall -g2 -ggdb -pthread")
 endif(DEBUG)
 
 add_library(Algorithm ${SRC})

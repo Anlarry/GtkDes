@@ -6,69 +6,12 @@
 #include <vector>
 #include <string.h>
 #include <stdlib.h>
+#include <datatype.h>
 using namespace std;
 
-typedef  unsigned char uchar ;
-typedef  unsigned int  uint  ;
+
 #define MASK 0x7
 
-template<int bits>
-class BitData
-{
-public:
-    BitData () {
-        memset(x, 0, sizeof(x));
-    }
-    void set(int idx, uchar val) {
-        uchar r = idx & MASK;
-        idx >>= 3;
-        if(val) {
-            x[idx] |= (1 << r);
-        }
-        else {
-            x[idx] &= ~(1 << r);
-        }
-    }
-    uchar operator [](int idx) const {
-        uchar r = idx& MASK;
-        idx >>= 3;
-        return (x[idx] >> r) & 1;
-    }
-    BitData<bits> operator ^ ( BitData <bits> other)  {
-        BitData<bits> res;
-        for(int i = 0; i < bits; i++) {
-            res.set(i, (*this)[i] ^ other[i]);
-        }
-        return res;
-    }
-    void set_int8(int idx, uchar val){
-        x[idx] = val;
-    }
-    uchar get_int8(int idx)  {
-        return x[idx];
-    }
-    string to_str(){
-        string res = "";
-        char buffer[5];
-        for(int i = 0; i < bits; ) {
-            char x = 0;
-            for(int j = 0; j < 4; j++) {
-                x = (x << 1) | (*this)[i++];
-            }
-            sprintf(buffer, "%x", x);
-            res += buffer[0];
-        }
-        return res;
-    }
-    friend ostream & operator<< (ostream & out, const BitData<bits> & data) {
-        for(int i = 0; i < bits; i++) {
-            printf("%d", data[i]);
-        }
-        return out;
-    }
-protected:
-    uchar x[bits/8];
-};
 
 // -------------------------------------------------------------
 
