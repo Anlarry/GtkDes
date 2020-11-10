@@ -145,6 +145,15 @@ public:
             x >>= 8;
         }
     }
+    BigNum( string DecimalStr)  {
+        BigNum res;
+        for(auto c : DecimalStr){
+            int x = c - '0';
+            res = res * 10;
+            res = res + x;
+        }
+        *this = res;
+    }
     int size() const {
         return num.size();
     }
@@ -153,6 +162,22 @@ public:
             os << num.num[i] << " ";
         }
         return os;
+    }
+    string DecimalStr() const {
+        BigNum x = *this;
+        string res = "";
+        while(!x.isZero()) {
+            BigNum r = x % 10;
+            if(!r.isZero()) {
+                res += (char)(r[0] + '0');
+            }
+            else {
+                res += '0';
+            }
+            x = x / 10;
+        }
+        reverse(res.begin(), res.end());
+        return res;
     }
     BigNum operator+(const BigNum &other ) const {
         // BigNum res(max(other.size(), this->size()) + 1);

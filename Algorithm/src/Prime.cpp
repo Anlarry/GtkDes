@@ -123,6 +123,7 @@ void Prime::multiThreadMR(mutex &mu,  bool &ok, BigNum &result, int byte, Prime:
             }
             else {
                 cout << "down by other" << "\n";
+//                cout << res << "\n";
             }
             mu.unlock();
             return ;
@@ -136,7 +137,7 @@ BigNum Prime::genPrime(int byte, Prime::Option opt) {
     condition_variable cond;
     bool ok = false;
     BigNum res;
-    int thread_num = 6;
+    int thread_num = 7;
     thread thread_arr[thread_num];
     for(int i = 0; i < thread_num; i++) {
         thread_arr[i] = thread(&Prime::multiThreadMR, this,
