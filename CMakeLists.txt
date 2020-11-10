@@ -1,8 +1,15 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(myproject)
 
-find_package(PkgConfig) 
+find_package(PkgConfig)
+
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Quick LinguistTools REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Quick LinguistTools REQUIRED)
+
+include_directories(${QT_INCLUDE_DIRS})
+
 pkg_check_modules(GTKMM gtkmm-3.0)
+
 include_directories(
     ${GTKMM_INCLUDE_DIRS}  )
 
@@ -18,6 +25,7 @@ include_directories(StringProcess)
 add_subdirectory(Gtk)
 add_subdirectory(Algorithm)
 add_subdirectory(StringProcess)
+add_subdirectory(Qt)
 
 option(DEBUG off)
 
